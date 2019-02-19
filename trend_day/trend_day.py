@@ -75,7 +75,7 @@ class TrendDayStrategy(Moonshot):
         closes = prices.loc["Close"]
 
         # Our signal came at 14:00 and we enter at 14:15 (the close of the 14:00 bar)
-        entry_prices = closes.xs("14:15:00", level="Time")
+        entry_prices = closes.xs("14:00:00", level="Time")
         session_closes = closes.xs("15:45:00", level="Time")
 
         # Our return is the 14:15-16:00 return, multiplied by the position
