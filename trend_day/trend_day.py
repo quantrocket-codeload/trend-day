@@ -1,4 +1,4 @@
-# Copyright 2019 QuantRocket LLC - All Rights Reserved
+# Copyright 2020 QuantRocket LLC - All Rights Reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,18 +17,19 @@ from moonshot import Moonshot
 from moonshot.commission import PerShareCommission
 
 class USStockCommission(PerShareCommission):
-    IB_COMMISSION_PER_SHARE = 0.005
+    BROKER_COMMISSION_PER_SHARE = 0.005
 
 class TrendDayStrategy(Moonshot):
     """
     Intraday strategy that buys (sells) if the security is up (down) more
-    than N% from yesterday's close as of 2:00 PM. Enters at 2:15 PM and
+    than N% from yesterday's close as of 2:00 PM. Enters at 2:01 PM and
     exits the position at the market close.
     """
 
     CODE = 'trend-day'
-    DB = 'leveraged-etf-15min'
-    DB_TIMES = ['14:00:00', '15:45:00']
+    DB = 'usstock-1min'
+    UNIVERSES = "leveraged-etf"
+    DB_TIMES = ['14:00:00', '15:59:00']
     DB_FIELDS = ['Open','Close']
     MIN_PCT_CHANGE = 0.06
     COMMISSION_CLASS = USStockCommission
@@ -40,8 +41,8 @@ class TrendDayStrategy(Moonshot):
         opens = prices.loc["Open"]
 
         # Take a cross section (xs) of prices to get a specific time's price;
-        # the close of the 15:45 bar is the session close
-        session_closes = closes.xs("15:45:00", level="Time")
+        # the close of the 15:59 bar is the session close
+        session_closes = closes.xs("15:59:00", level="Time")
         # the open of the 14:00 bar is the 14:00 price
         afternoon_prices = opens.xs("14:00:00", level="Time")
 
@@ -74,11 +75,11 @@ class TrendDayStrategy(Moonshot):
 
         closes = prices.loc["Close"]
 
-        # Our signal came at 14:00 and we enter at 14:15 (the close of the 14:00 bar)
+        # Our signal came at 14:00 and we enter at 14:01 (the close of the 14:00 bar)
         entry_prices = closes.xs("14:00:00", level="Time")
-        session_closes = closes.xs("15:45:00", level="Time")
+        session_closes = closes.xs("15:59:00", level="Time")
 
-        # Our return is the 14:15-16:00 return, multiplied by the position
+        # Our return is the 14:01-16:00 return, multiplied by the position
         pct_changes = (session_closes - entry_prices) / entry_prices
         gross_returns = pct_changes * positions
         return gross_returns
