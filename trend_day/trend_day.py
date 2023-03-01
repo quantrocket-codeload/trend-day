@@ -35,7 +35,7 @@ class TrendDayStrategy(Moonshot):
     COMMISSION_CLASS = USStockCommission
     SLIPPAGE_BPS = 3
 
-    def prices_to_signals(self, prices):
+    def prices_to_signals(self, prices: pd.DataFrame):
 
         closes = prices.loc["Close"]
         opens = prices.loc["Open"]
@@ -58,20 +58,20 @@ class TrendDayStrategy(Moonshot):
         signals = long_signals.astype(int).where(long_signals, -short_signals.astype(int))
         return signals
 
-    def signals_to_target_weights(self, signals, prices):
+    def signals_to_target_weights(self, signals: pd.DataFrame, prices: pd.DataFrame):
 
         # allocate 20% of capital to each position, or equally divide capital
         # among positions, whichever is less
         target_weights = self.allocate_fixed_weights_capped(signals, 0.20, cap=1.0)
         return target_weights
 
-    def target_weights_to_positions(self, target_weights, prices):
+    def target_weights_to_positions(self, target_weights: pd.DataFrame, prices: pd.DataFrame):
 
         # We enter on the same day as the signals/target_weights
         positions = target_weights.copy()
         return positions
 
-    def positions_to_gross_returns(self, positions, prices):
+    def positions_to_gross_returns(self, positions: pd.DataFrame, prices: pd.DataFrame):
 
         closes = prices.loc["Close"]
 
@@ -84,7 +84,7 @@ class TrendDayStrategy(Moonshot):
         gross_returns = pct_changes * positions
         return gross_returns
 
-    def order_stubs_to_orders(self, orders, prices):
+    def order_stubs_to_orders(self, orders: pd.DataFrame, prices: pd.DataFrame):
 
         # enter using market orders
         orders["Exchange"] = "SMART"
